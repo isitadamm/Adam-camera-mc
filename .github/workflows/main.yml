@@ -13,10 +13,9 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 25
+          java-version: 21
 
       - name: Build
-        working-directory: adam-camera/adam-camera
         run: |
           chmod +x ./gradlew
           ./gradlew build
@@ -24,4 +23,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: adam-camera
-          path: adam-camera/adam-camera/build/libs/*.jar
+          path: build/libs/*.jar
