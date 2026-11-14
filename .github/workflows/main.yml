@@ -1,50 +1,27 @@
-plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
-    id 'maven-publish'
-}
+name: build
 
-version = project.mod_version
-group = project.maven_group
+on:
+  push:
+  workflow_dispatch:
 
-base {
-    archivesName = project.archives_base_name
-}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-repositories {
-    // Add repositories to retrieve artifacts from in here.
-}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
 
-dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-}
+      - name: Build
+        working-directory: adam-camera/adam-camera
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build
 
-processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-               "minecraft_version": project.minecraft_version,
-               "loader_version": project.loader_version
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 25
-}
-
-java {
-    withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
-}
-
-jar {
-    inputs.property "archivesName", project.base.archivesName
-    from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}" }
-    }
-}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adam-camera
+          path: adam-camera/adam-camera/build/libs/*.jar
